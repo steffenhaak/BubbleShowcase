@@ -39,16 +39,12 @@ abstract class BubbleSlide {
       ),
     ];
 
-    if (child != null && child.widget != null) {
-      children.add(child.build(context, highlightPosition, MediaQuery.of(context).size));
-    }
-
     int slidesCount = bubbleShowcase.bubbleSlides.length;
     Color writeColor = Util.isColorDark(boxShadow.color) ? Colors.white : Colors.black;
     if (bubbleShowcase.counterText != null) {
       children.add(
         Positioned(
-          bottom: 5,
+          bottom: MediaQuery.of(context).viewPadding.bottom + 4.0,
           left: 0,
           right: 0,
           child: Text(
@@ -60,10 +56,14 @@ abstract class BubbleSlide {
       );
     }
 
+    if (child != null && child.widget != null) {
+      children.add(child.build(context, highlightPosition, MediaQuery.of(context).size));
+    }
+
     if (bubbleShowcase.showCloseButton) {
       children.add(Positioned(
         top: MediaQuery.of(context).padding.top,
-        left: 0,
+        left: 8.0,
         child: GestureDetector(
           child: Icon(
             Icons.close,
@@ -176,11 +176,15 @@ abstract class BubbleSlideChild {
 class RelativeBubbleSlideChild extends BubbleSlideChild {
   /// The child direction.
   final AxisDirection direction;
+  final double extraWidth;
+  final double extraHeight;
 
   /// Creates a new relative bubble slide child instance.
   const RelativeBubbleSlideChild({
     Widget widget,
     this.direction = AxisDirection.down,
+    this.extraWidth,
+    this.extraHeight,
   }) : super(
           widget: widget,
         );
@@ -190,27 +194,27 @@ class RelativeBubbleSlideChild extends BubbleSlideChild {
     switch (direction) {
       case AxisDirection.up:
         return Position(
-          right: parentSize.width - highlightPosition.right,
-          bottom: highlightPosition.top,
-          left: highlightPosition.left,
+          right: parentSize.width - highlightPosition.right - (extraWidth ?? 0.0),
+          bottom: parentSize.height - highlightPosition.top,
+          left: highlightPosition.left - (extraWidth ?? 0.0),
         );
       case AxisDirection.right:
         return Position(
-          top: highlightPosition.top,
-          bottom: parentSize.height - highlightPosition.bottom,
+          top: highlightPosition.top - (extraHeight ?? 0.0),
+          bottom: parentSize.height - highlightPosition.bottom - (extraHeight ?? 0.0),
           left: highlightPosition.right,
         );
       case AxisDirection.left:
         return Position(
-          top: highlightPosition.top,
-          bottom: parentSize.height - highlightPosition.bottom,
-          left: highlightPosition.right,
+          top: highlightPosition.top - (extraHeight ?? 0.0),
+          bottom: parentSize.height - highlightPosition.bottom - (extraHeight ?? 0.0),
+          right: parentSize.width - highlightPosition.left,
         );
       default:
         return Position(
           top: highlightPosition.bottom,
-          right: parentSize.width - highlightPosition.right,
-          left: highlightPosition.left,
+          right: parentSize.width - highlightPosition.right - (extraWidth ?? 0.0),
+          left: highlightPosition.left - (extraWidth ?? 0.0),
         );
     }
   }

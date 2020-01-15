@@ -1,20 +1,13 @@
 library bubble_showcase;
 
+import 'package:bubble_showcase/bubble_showcase.dart';
+import 'package:bubble_showcase/src/controller.dart';
 import 'package:bubble_showcase/src/slide.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// The BubbleShowcase main widget.
 class BubbleShowcase extends StatefulWidget {
-  /// This showcase identifier. Must be unique across the app.
-  final String bubbleShowcaseId;
-
-  /// This showcase version.
-  final int bubbleShowcaseVersion;
-
-  /// Whether this showcase should reopen once closed.
-  final bool doNotReopenOnClose;
 
   /// All slides.
   final List<BubbleSlide> bubbleSlides;
@@ -28,35 +21,30 @@ class BubbleShowcase extends StatefulWidget {
   /// Whether to show a close button.
   final bool showCloseButton;
 
+  final BubbleShowcaseController controller;
+
   /// Creates a new bubble showcase instance.
   BubbleShowcase({
-    @required this.bubbleShowcaseId,
-    @required this.bubbleShowcaseVersion,
-    this.doNotReopenOnClose = false,
     @required this.bubbleSlides,
     this.child,
     this.counterText = ':i/:n',
     this.showCloseButton = true,
-  }) : assert(bubbleSlides.isNotEmpty);
+    @required this.controller,
+  })  : assert(bubbleSlides.isNotEmpty),
+        assert(controller != null);
 
   @override
   State<StatefulWidget> createState() => _BubbleShowcaseState();
-
-  /// Whether this showcase should be opened.
-  Future<bool> get shouldOpenShowcase async {
-    if (!doNotReopenOnClose) {
-      return true;
-    }
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    bool result = preferences.getBool(bubbleShowcaseId + '.' + bubbleShowcaseVersion.toString());
-    return result == null || result;
-  }
 }
 
 /// The BubbleShowcase state.
-class _BubbleShowcaseState extends State<BubbleShowcase> with WidgetsBindingObserver {
+class _BubbleShowcaseState extends State<BubbleShowcase>
+    with WidgetsBindingObserver {
   /// The current slide index.
   int _currentSlideIndex = -1;
+
+  bool get open => _open;
+  bool _open;
 
   /// The current slide entry.
   OverlayEntry _currentSlideEntry;
@@ -66,16 +54,8 @@ class _BubbleShowcaseState extends State<BubbleShowcase> with WidgetsBindingObse
     if (_currentSlideEntry != null) {
       _currentSlideEntry.remove();
     }
-    _currentSlideEntry = _createCurrentSlideEntry();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (await widget.shouldOpenShowcase) {
-        _currentSlideIndex++;
-      }
-
-      Overlay.of(context).insert(_currentSlideEntry);
-    });
     WidgetsBinding.instance.addObserver(this);
+    widget.controller?.addListener(_controllerValueChanged);
 
     super.initState();
   }
@@ -83,10 +63,34 @@ class _BubbleShowcaseState extends State<BubbleShowcase> with WidgetsBindingObse
   @override
   Widget build(BuildContext context) => widget.child;
 
+  void _showOverlay() {
+    _currentSlideIndex = 0;
+    _currentSlideEntry = _createCurrentSlideEntry();
+    Overlay.of(context).insert(_currentSlideEntry);
+  }
+
+  @override
+  void didUpdateWidget(BubbleShowcase oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.controller != oldWidget.controller) {
+      debugPrint('didUpdateWidget !=');
+      oldWidget.controller?.removeListener(_controllerValueChanged);
+      widget.controller?.addListener(_controllerValueChanged);
+    }
+  }
+
+  void _controllerValueChanged() {
+    if (widget.controller.value) {
+      _showOverlay();
+    }
+  }
+
   @override
   void dispose() {
-    _currentSlideEntry.remove();
+    if (_currentSlideEntry != null) _currentSlideEntry.remove();
     WidgetsBinding.instance.removeObserver(this);
+    widget.controller?.removeListener(_controllerValueChanged);
     super.dispose();
   }
 
@@ -99,7 +103,9 @@ class _BubbleShowcaseState extends State<BubbleShowcase> with WidgetsBindingObse
   }
 
   /// Returns whether the showcasing is finished.
-  bool get _isFinished => _currentSlideIndex == -1 || _currentSlideIndex == widget.bubbleSlides.length;
+  bool get _isFinished =>
+      _currentSlideIndex == -1 ||
+      _currentSlideIndex == widget.bubbleSlides.length;
 
   /// Closes the showcase if finished.
   void _closeIfFinished() {
@@ -108,11 +114,7 @@ class _BubbleShowcaseState extends State<BubbleShowcase> with WidgetsBindingObse
     }
 
     _currentSlideEntry = null;
-    if (widget.doNotReopenOnClose) {
-      SharedPreferences.getInstance().then((preferences) {
-        preferences.setBool(widget.bubbleShowcaseId + '.' + widget.bubbleShowcaseVersion.toString(), false);
-      });
-    }
+    widget.controller.value = false;
   }
 
   /// Creates the current slide entry.
