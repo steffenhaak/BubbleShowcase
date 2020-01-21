@@ -97,8 +97,10 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
   @override
   void didChangeMetrics() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      _currentSlideEntry.remove();
-      Overlay.of(context).insert(_currentSlideEntry);
+      if (_currentSlideEntry != null) {
+        _currentSlideEntry.remove();
+        Overlay.of(context).insert(_currentSlideEntry);
+      }
     });
   }
 
