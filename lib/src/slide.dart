@@ -120,10 +120,11 @@ class RelativeBubbleSlide extends BubbleSlide {
   @override
   Position getHighlightPosition(BuildContext context,
       BubbleShowcase bubbleShowcase, int currentSlideIndex) {
-    RenderObject object = widgetKey.currentContext.findRenderObject();
+    final currentContext = widgetKey.currentContext;
+    if (currentContext == null) return null;
+    RenderObject object = currentContext.findRenderObject();
     RenderBox renderBox = object as RenderBox;
     Offset offset = renderBox.localToGlobal(Offset.zero);
-    debugPrint('offset $offset');
 
     final RenderAbstractViewport viewport = RenderAbstractViewport.of(object);
 
@@ -221,6 +222,10 @@ class RelativeBubbleSlideChild extends BubbleSlideChild {
   final AxisDirection direction;
   final double extraWidth;
   final double extraHeight;
+  final double extraWidthLeft;
+  final double extraWidthRight;
+  final double extraHeightTop;
+  final double extraHeightBottom;
 
   /// Creates a new relative bubble slide child instance.
   const RelativeBubbleSlideChild({
@@ -228,6 +233,10 @@ class RelativeBubbleSlideChild extends BubbleSlideChild {
     this.direction = AxisDirection.down,
     this.extraWidth,
     this.extraHeight,
+    this.extraWidthLeft,
+    this.extraWidthRight,
+    this.extraHeightTop,
+    this.extraHeightBottom,
   }) : super(
           widget: widget,
         );
@@ -239,32 +248,32 @@ class RelativeBubbleSlideChild extends BubbleSlideChild {
       case AxisDirection.up:
         return Position(
           right:
-              parentSize.width - highlightPosition.right - (extraWidth ?? 0.0),
+              parentSize.width - highlightPosition.right - (extraWidthRight ?? extraWidth ?? 0.0),
           bottom: parentSize.height - highlightPosition.top,
-          left: highlightPosition.left - (extraWidth ?? 0.0),
+          left: highlightPosition.left - (extraWidthLeft ?? extraWidth ?? 0.0),
         );
       case AxisDirection.right:
         return Position(
-          top: highlightPosition.top - (extraHeight ?? 0.0),
+          top: highlightPosition.top - (extraHeightTop ?? extraHeight ?? 0.0),
           bottom: parentSize.height -
               highlightPosition.bottom -
-              (extraHeight ?? 0.0),
+              (extraHeightBottom ?? extraHeight ?? 0.0),
           left: highlightPosition.right,
         );
       case AxisDirection.left:
         return Position(
-          top: highlightPosition.top - (extraHeight ?? 0.0),
+          top: highlightPosition.top - (extraHeightTop ?? extraHeight ?? 0.0),
           bottom: parentSize.height -
               highlightPosition.bottom -
-              (extraHeight ?? 0.0),
+              (extraHeightBottom ?? extraHeight ?? 0.0),
           right: parentSize.width - highlightPosition.left,
         );
       default:
         return Position(
           top: highlightPosition.bottom,
           right:
-              parentSize.width - highlightPosition.right - (extraWidth ?? 0.0),
-          left: highlightPosition.left - (extraWidth ?? 0.0),
+              parentSize.width - highlightPosition.right - (extraWidthRight ?? extraWidth ?? 0.0),
+          left: highlightPosition.left - (extraWidthLeft ?? extraWidth ?? 0.0),
         );
     }
   }
