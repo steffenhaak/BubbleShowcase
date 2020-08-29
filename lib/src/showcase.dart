@@ -119,8 +119,13 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
     _currentSlideIndex = position;
     _currentSlideEntry.remove();
 
-    _currentSlideEntry = null;
-    widget.controller.value = false;
+    if (_isFinished) {
+      _currentSlideEntry = null;
+      widget.controller.value = false;
+    } else {
+      _currentSlideEntry = _createCurrentSlideEntry();
+      Overlay.of(context).insert(_currentSlideEntry);
+    }
   }
 
   /// Creates the current slide entry.
