@@ -22,11 +22,6 @@ class BubbleShowcase extends StatefulWidget {
   final bool showCloseButton;
 
   final BubbleShowcaseController controller;
-  // Duration by which delay showcase initialization.
-  final Duration initialDelay;
-
-  // Whether tapping anywhere will trigger the next slide. Defaults to true.
-  final bool nextSlideOnTap;
 
   /// Creates a new bubble showcase instance.
   BubbleShowcase({
@@ -35,8 +30,6 @@ class BubbleShowcase extends StatefulWidget {
     this.counterText = ':i/:n',
     this.showCloseButton = true,
     @required this.controller,
-    this.initialDelay = Duration.zero,
-    this.nextSlideOnTap = true,
   })  : assert(bubbleSlides.isNotEmpty),
         assert(controller != null);
 
