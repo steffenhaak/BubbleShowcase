@@ -43,7 +43,6 @@ class BubbleShowcase extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _BubbleShowcaseState();
 
-
 }
 
 /// The BubbleShowcase state.
@@ -105,7 +104,7 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
 
   @override
   void didChangeMetrics() {
-    if(_currentSlideEntry == null) {
+    if (_currentSlideEntry == null) {
       return;
     }
 
