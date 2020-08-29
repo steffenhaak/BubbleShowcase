@@ -4,5 +4,5 @@
 export 'package:bubble_showcase/src/shape.dart';
 export 'package:bubble_showcase/src/showcase.dart';
 export 'package:bubble_showcase/src/slide.dart';
-export 'package:bubble_showcase/src/util.dart';
+export 'package:bubble_showcase/src/utils.dart';
 export 'package:bubble_showcase/src/controller.dart';

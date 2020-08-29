@@ -22,6 +22,11 @@ class BubbleShowcase extends StatefulWidget {
   final bool showCloseButton;
 
   final BubbleShowcaseController controller;
+  // Duration by which delay showcase initialization.
+  final Duration initialDelay;
+
+  // Whether tapping anywhere will trigger the next slide. Defaults to true.
+  final bool nextSlideOnTap;
 
   /// Creates a new bubble showcase instance.
   BubbleShowcase({
@@ -30,11 +35,15 @@ class BubbleShowcase extends StatefulWidget {
     this.counterText = ':i/:n',
     this.showCloseButton = true,
     @required this.controller,
+    this.initialDelay = Duration.zero,
+    this.nextSlideOnTap = true,
   })  : assert(bubbleSlides.isNotEmpty),
         assert(controller != null);
 
   @override
   State<StatefulWidget> createState() => _BubbleShowcaseState();
+
+
 }
 
 /// The BubbleShowcase state.
@@ -88,7 +97,7 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
 
   @override
   void dispose() {
-    if (_currentSlideEntry != null) _currentSlideEntry.remove();
+    _currentSlideEntry?.remove();
     WidgetsBinding.instance.removeObserver(this);
     widget.controller?.removeListener(_controllerValueChanged);
     super.dispose();
@@ -96,6 +105,10 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
 
   @override
   void didChangeMetrics() {
+    if(_currentSlideEntry == null) {
+      return;
+    }
+
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (_currentSlideEntry != null) {
         _currentSlideEntry.remove();
@@ -109,11 +122,10 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
       _currentSlideIndex == -1 ||
       _currentSlideIndex == widget.bubbleSlides.length;
 
-  /// Closes the showcase if finished.
-  void _closeIfFinished() {
-    if (!_isFinished) {
-      return;
-    }
+  /// Allows to go to the next entry (or to close the showcase if needed).
+  void _goToNextEntryOrClose(int position) {
+    _currentSlideIndex = position;
+    _currentSlideEntry.remove();
 
     _currentSlideEntry = null;
     widget.controller.value = false;
@@ -125,16 +137,9 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
           context,
           widget,
           _currentSlideIndex,
-          (position) => setState(() {
-            _currentSlideIndex = position;
-            _currentSlideEntry.remove();
-            _closeIfFinished();
-
-            if (!_isFinished) {
-              _currentSlideEntry = _createCurrentSlideEntry();
-              Overlay.of(context).insert(_currentSlideEntry);
-            }
-          }),
+          (position) {
+            setState(() => _goToNextEntryOrClose(position));
+          },
         ),
       );
 }
