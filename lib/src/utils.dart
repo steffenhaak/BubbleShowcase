@@ -1,5 +1,6 @@
 import 'package:bubble_showcase/src/slide.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 /// Contains some useful methods.
 class Utils {
@@ -76,7 +77,9 @@ class OverlayPainter extends CustomPainter {
         _position.right ?? size.width,
         _position.bottom ?? size.height,
       ),
-      _slide.boxShadow.toPaint()..blendMode = BlendMode.clear,
+      kIsWeb ? 
+        _slide.boxShadow.toPaint() : 
+        _slide.boxShadow.toPaint()..blendMode = BlendMode.clear,
     );
     canvas.restore();
   }
