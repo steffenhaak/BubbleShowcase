@@ -20,27 +20,40 @@ class _BubbleShowcaseDemoApp extends StatelessWidget {
 }
 
 /// The main demo widget.
-class _BubbleShowcaseDemoWidget extends StatelessWidget {
+class _BubbleShowcaseDemoWidget extends StatefulWidget {
+  @override
+  __BubbleShowcaseDemoWidgetState createState() =>
+      __BubbleShowcaseDemoWidgetState();
+}
+
+class __BubbleShowcaseDemoWidgetState extends State<_BubbleShowcaseDemoWidget> {
   /// The title text global key.
   final GlobalKey _titleKey = GlobalKey();
 
   /// The first button global key.
   final GlobalKey _firstButtonKey = GlobalKey();
 
+  final _controller = BubbleShowcaseController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme.of(context).textTheme.body1.copyWith(
+    TextStyle textStyle = Theme.of(context).textTheme.bodyText2.copyWith(
           color: Colors.white,
         );
     return BubbleShowcase(
-      bubbleShowcaseId: 'my_bubble_showcase',
-      bubbleShowcaseVersion: 1,
       bubbleSlides: [
         _firstSlide(textStyle),
         _secondSlide(textStyle),
         _thirdSlide(textStyle),
       ],
-      child: _BubbleShowcaseDemoChild(_titleKey, _firstButtonKey),
+      controller: _controller,
+      child: _BubbleShowcaseDemoChild(_titleKey, _firstButtonKey, _controller),
     );
   }
 
@@ -122,7 +135,7 @@ class _BubbleShowcaseDemoWidget extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Padding(
+                    const Padding(
                       padding: const EdgeInsets.only(right: 5),
                       child: Icon(
                         Icons.info_outline,
@@ -152,8 +165,11 @@ class _BubbleShowcaseDemoChild extends StatelessWidget {
   /// The first button global key.
   final GlobalKey _firstButtonKey;
 
+  final BubbleShowcaseController controller;
+
   /// Creates a new bubble showcase demo child instance.
-  _BubbleShowcaseDemoChild(this._titleKey, this._firstButtonKey);
+  _BubbleShowcaseDemoChild(
+      this._titleKey, this._firstButtonKey, this.controller);
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -168,22 +184,29 @@ class _BubbleShowcaseDemoChild extends StatelessWidget {
               child: Text(
                 'Bubble Showcase',
                 key: _titleKey,
-                style: Theme.of(context).textTheme.display1,
+                style: Theme.of(context).textTheme.headline4,
                 textAlign: TextAlign.center,
               ),
               width: MediaQuery.of(context).size.width,
             ),
             Padding(
               padding: const EdgeInsets.only(top: 30),
-              child: RaisedButton(
+              child: ElevatedButton(
                 child: const Text('This button is NEW !'),
                 key: _firstButtonKey,
                 onPressed: () {},
               ),
             ),
-            RaisedButton(
-              child: const Text('This button is old, please don\'t pay attention.'),
+            ElevatedButton(
+              child: const Text(
+                  'This button is old, please don\'t pay attention.'),
               onPressed: () {},
+            ),
+            ElevatedButton(
+              child: const Text('Show bubbles...'),
+              onPressed: () {
+                controller.open();
+              },
             )
           ],
         ),

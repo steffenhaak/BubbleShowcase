@@ -1,4 +1,4 @@
-include: package:pedantic/analysis_options.yaml
+include: package:pedantic/analysis_options.1.11.0.yaml
 
 linter:
   rules:
@@ -7,4 +7,4 @@ linter:
 
 analyzer:
   errors:
-    omit_local_variable_types: ignore
+    omit_local_variable_types: ignore0

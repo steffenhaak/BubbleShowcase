@@ -3,7 +3,7 @@ description: Demonstrates how to use the bubble_showcase plugin.
 publish_to: 'none'
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.11.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -14,7 +14,7 @@ dev_dependencies:
     sdk: flutter
   bubble_showcase:
     path: ../
-  speech_bubble: ^0.0.6
+  speech_bubble: ^0.0.7
 
 flutter:
   uses-material-design: true

@@ -11,16 +11,16 @@ class Utils {
 /// Represents a position on the screen.
 class Position {
   /// The top coordinate.
-  final double top;
+  final double? top;
 
   /// The right coordinate.
-  final double right;
+  final double? right;
 
   /// The bottom coordinate.
-  final double bottom;
+  final double? bottom;
 
   /// The left coordinate.
-  final double left;
+  final double? left;
 
   /// Creates a new position instance.
   const Position({
@@ -45,10 +45,10 @@ class Position {
   @override
   int get hashCode {
     int result = 17;
-    result = result * 31 + top.truncate();
-    result = result * 31 + right.truncate();
-    result = result * 31 + bottom.truncate();
-    result = result * 31 + left.truncate();
+    result = result * 31 + (top?.truncate() ?? 0);
+    result = result * 31 + (right?.truncate() ?? 0);
+    result = result * 31 + (bottom?.truncate() ?? 0);
+    result = result * 31 + (left?.truncate() ?? 0);
     return result;
   }
 }

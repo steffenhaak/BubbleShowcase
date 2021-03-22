@@ -8,12 +8,11 @@ import 'package:flutter/scheduler.dart';
 
 /// The BubbleShowcase main widget.
 class BubbleShowcase extends StatefulWidget {
-
   /// All slides.
   final List<BubbleSlide> bubbleSlides;
 
   /// The child widget (displayed below the showcase).
-  final Widget child;
+  final Widget? child;
 
   /// The counter text (:i is the current slide, :n is the slides count). You can pass null to disable this.
   final String counterText;
@@ -25,17 +24,15 @@ class BubbleShowcase extends StatefulWidget {
 
   /// Creates a new bubble showcase instance.
   BubbleShowcase({
-    @required this.bubbleSlides,
+    required this.bubbleSlides,
     this.child,
     this.counterText = ':i/:n',
     this.showCloseButton = true,
-    @required this.controller,
-  })  : assert(bubbleSlides.isNotEmpty),
-        assert(controller != null);
+    required this.controller,
+  }) : assert(bubbleSlides.isNotEmpty);
 
   @override
   State<StatefulWidget> createState() => _BubbleShowcaseState();
-
 }
 
 /// The BubbleShowcase state.
@@ -44,30 +41,30 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
   /// The current slide index.
   int _currentSlideIndex = -1;
 
-  bool get open => _open;
-  bool _open;
+  bool? get open => _open;
+  bool? _open;
 
   /// The current slide entry.
-  OverlayEntry _currentSlideEntry;
+  OverlayEntry? _currentSlideEntry;
 
   @override
   void initState() {
     if (_currentSlideEntry != null) {
-      _currentSlideEntry.remove();
+      _currentSlideEntry!.remove();
     }
-    WidgetsBinding.instance.addObserver(this);
-    widget.controller?.addListener(_controllerValueChanged);
+    WidgetsBinding.instance!.addObserver(this);
+    widget.controller.addListener(_controllerValueChanged);
 
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) => widget.child!;
 
   void _showOverlay() {
     _currentSlideIndex = 0;
     _currentSlideEntry = _createCurrentSlideEntry();
-    Overlay.of(context).insert(_currentSlideEntry);
+    Overlay.of(context)!.insert(_currentSlideEntry!);
   }
 
   @override
@@ -76,8 +73,8 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
 
     if (widget.controller != oldWidget.controller) {
       debugPrint('didUpdateWidget !=');
-      oldWidget.controller?.removeListener(_controllerValueChanged);
-      widget.controller?.addListener(_controllerValueChanged);
+      oldWidget.controller.removeListener(_controllerValueChanged);
+      widget.controller.addListener(_controllerValueChanged);
     }
   }
 
@@ -90,8 +87,8 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
   @override
   void dispose() {
     _currentSlideEntry?.remove();
-    WidgetsBinding.instance.removeObserver(this);
-    widget.controller?.removeListener(_controllerValueChanged);
+    WidgetsBinding.instance!.removeObserver(this);
+    widget.controller.removeListener(_controllerValueChanged);
     super.dispose();
   }
 
@@ -101,10 +98,10 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
       return;
     }
 
-    SchedulerBinding.instance.addPostFrameCallback((_) {
+    SchedulerBinding.instance!.addPostFrameCallback((_) {
       if (_currentSlideEntry != null) {
-        _currentSlideEntry.remove();
-        Overlay.of(context).insert(_currentSlideEntry);
+        _currentSlideEntry!.remove();
+        Overlay.of(context)!.insert(_currentSlideEntry!);
       }
     });
   }
@@ -117,14 +114,14 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
   /// Allows to go to the next entry (or to close the showcase if needed).
   void _goToNextEntryOrClose(int position) {
     _currentSlideIndex = position;
-    _currentSlideEntry.remove();
+    _currentSlideEntry!.remove();
 
     if (_isFinished) {
       _currentSlideEntry = null;
       widget.controller.value = false;
     } else {
       _currentSlideEntry = _createCurrentSlideEntry();
-      Overlay.of(context).insert(_currentSlideEntry);
+      Overlay.of(context)!.insert(_currentSlideEntry!);
     }
   }
 

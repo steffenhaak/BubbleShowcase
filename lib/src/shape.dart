@@ -36,7 +36,7 @@ class RoundedRectangle extends Shape {
   /// Creates a new rounded rectangle shape instance.
   const RoundedRectangle({
     this.spreadRadius = 0,
-    this.radius,
+    required this.radius,
   });
 
   @override
@@ -75,7 +75,7 @@ class Circle extends Shape {
 
   @override
   void drawOnCanvas(Canvas canvas, Rect rectangle, Paint paint) {
-    Rect circle = rectangle.inflate(spreadRadius);
+    var circle = rectangle.inflate(spreadRadius);
     canvas.drawCircle(circle.center, circle.longestSide / 2, paint);
   }
 }

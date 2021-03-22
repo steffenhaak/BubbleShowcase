@@ -17,7 +17,7 @@ abstract class BubbleSlide {
   final BoxShadow boxShadow;
 
   /// The slide child.
-  final BubbleSlideChild child;
+  final BubbleSlideChild? child;
 
   /// Creates a new bubble slide instance.
   const BubbleSlide({
@@ -33,7 +33,7 @@ abstract class BubbleSlide {
   /// Builds the whole slide widget.
   Widget build(BuildContext context, BubbleShowcase bubbleShowcase,
       int currentSlideIndex, void Function(int) goToSlide) {
-    Position highlightPosition =
+    Position? highlightPosition =
         getHighlightPosition(context, bubbleShowcase, currentSlideIndex);
     if (highlightPosition == null) return const SizedBox();
     List<Widget> children = [
@@ -44,35 +44,35 @@ abstract class BubbleSlide {
       ),
     ];
 
-    if (child != null && child.widget != null) {
-      children.add(
-          child.build(context, highlightPosition, MediaQuery.of(context).size));
+    if (child != null && child!.widget != null) {
+      children.add(child!
+          .build(context, highlightPosition, MediaQuery.of(context).size));
     }
 
     int slidesCount = bubbleShowcase.bubbleSlides.length;
     Color writeColor =
         Utils.isColorDark(boxShadow.color) ? Colors.white : Colors.black;
-    if (bubbleShowcase.counterText != null) {
-      children.add(
-        Positioned(
-          bottom: MediaQuery.of(context).viewPadding.bottom + 4.0,
-          left: 0,
-          right: 0,
-          child: Text(
-            bubbleShowcase.counterText
-                .replaceAll(':i', (currentSlideIndex + 1).toString())
-                .replaceAll(':n', slidesCount.toString()),
-            style:
-                Theme.of(context).textTheme.body1.copyWith(color: writeColor),
-            textAlign: TextAlign.center,
-          ),
+    children.add(
+      Positioned(
+        bottom: MediaQuery.of(context).viewPadding.bottom + 4.0,
+        left: 0,
+        right: 0,
+        child: Text(
+          bubbleShowcase.counterText
+              .replaceAll(':i', (currentSlideIndex + 1).toString())
+              .replaceAll(':n', slidesCount.toString()),
+          style: Theme.of(context)
+              .textTheme
+              .bodyText2!
+              .copyWith(color: writeColor),
+          textAlign: TextAlign.center,
         ),
-      );
-    }
+      ),
+    );
 
-    if (child != null && child.widget != null) {
-      children.add(
-          child.build(context, highlightPosition, MediaQuery.of(context).size));
+    if (child != null && child!.widget != null) {
+      children.add(child!
+          .build(context, highlightPosition, MediaQuery.of(context).size));
     }
 
     if (bubbleShowcase.showCloseButton) {
@@ -80,11 +80,11 @@ abstract class BubbleSlide {
         top: MediaQuery.of(context).padding.top,
         left: 8.0,
         child: GestureDetector(
+          onTap: () => goToSlide(slidesCount),
           child: Icon(
             Icons.close,
             color: writeColor,
           ),
-          onTap: () => goToSlide(slidesCount),
         ),
       ));
     }
@@ -98,7 +98,7 @@ abstract class BubbleSlide {
   }
 
   /// Returns the position to highlight.
-  Position getHighlightPosition(BuildContext context,
+  Position? getHighlightPosition(BuildContext context,
       BubbleShowcase bubbleShowcase, int currentSlideIndex);
 }
 
@@ -115,8 +115,8 @@ class RelativeBubbleSlide extends BubbleSlide {
       blurRadius: 0,
       spreadRadius: 0,
     ),
-    BubbleSlideChild child,
-    @required this.widgetKey,
+    BubbleSlideChild? child,
+    required this.widgetKey,
   }) : super(
           shape: shape,
           boxShadow: boxShadow,
@@ -124,21 +124,21 @@ class RelativeBubbleSlide extends BubbleSlide {
         );
 
   @override
-  Position getHighlightPosition(BuildContext context,
+  Position? getHighlightPosition(BuildContext context,
       BubbleShowcase bubbleShowcase, int currentSlideIndex) {
     final currentContext = widgetKey.currentContext;
     if (currentContext == null) return null;
-    RenderObject object = currentContext.findRenderObject();
+    RenderObject object = currentContext.findRenderObject()!;
     RenderBox renderBox = object as RenderBox;
     Offset offset = renderBox.localToGlobal(Offset.zero);
 
-    final RenderAbstractViewport viewport = RenderAbstractViewport.of(object);
+    final RenderAbstractViewport? viewport = RenderAbstractViewport.of(object);
 
-    ScrollableState scrollableState = Scrollable.of(widgetKey.currentContext);
+    ScrollableState? scrollableState = Scrollable.of(widgetKey.currentContext!);
 
     if (viewport != null && scrollableState != null) {
       ScrollPosition position = scrollableState.position;
-      double alignment;
+      double? alignment;
       if (position.pixels > viewport.getOffsetToReveal(object, 0.0).offset) {
         // Move down to the top of the viewport
         alignment = 0.0;
@@ -149,12 +149,15 @@ class RelativeBubbleSlide extends BubbleSlide {
       }
 
       if (alignment != null) {
-        position.ensureVisible(
-          object,
-          alignment: alignment,
-          duration: Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-        ).then((_) => Overlay.of(context).setState(() {}));
+        position
+            .ensureVisible(
+              object,
+              alignment: alignment,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+            )
+            // ignore: invalid_use_of_protected_member
+            .then((_) => Overlay.of(context)!.setState(() {}));
         return null;
       }
     }
@@ -181,8 +184,8 @@ class AbsoluteBubbleSlide extends BubbleSlide {
       blurRadius: 0,
       spreadRadius: 0,
     ),
-    BubbleSlideChild child,
-    @required this.positionCalculator,
+    BubbleSlideChild? child,
+    required this.positionCalculator,
   }) : super(
           shape: shape,
           boxShadow: boxShadow,
@@ -198,7 +201,7 @@ class AbsoluteBubbleSlide extends BubbleSlide {
 /// A bubble slide child, holding a widget.
 abstract class BubbleSlideChild {
   /// The held widget.
-  final Widget widget;
+  final Widget? widget;
 
   /// Creates a new bubble slide child instance.
   const BubbleSlideChild({
@@ -213,7 +216,7 @@ abstract class BubbleSlideChild {
       right: position.right,
       bottom: position.bottom,
       left: position.left,
-      child: widget,
+      child: widget!,
     );
   }
 
@@ -226,16 +229,16 @@ abstract class BubbleSlideChild {
 class RelativeBubbleSlideChild extends BubbleSlideChild {
   /// The child direction.
   final AxisDirection direction;
-  final double extraWidth;
-  final double extraHeight;
-  final double extraWidthLeft;
-  final double extraWidthRight;
-  final double extraHeightTop;
-  final double extraHeightBottom;
+  final double? extraWidth;
+  final double? extraHeight;
+  final double? extraWidthLeft;
+  final double? extraWidthRight;
+  final double? extraHeightTop;
+  final double? extraHeightBottom;
 
   /// Creates a new relative bubble slide child instance.
   const RelativeBubbleSlideChild({
-    Widget widget,
+    Widget? widget,
     this.direction = AxisDirection.down,
     this.extraWidth,
     this.extraHeight,
@@ -253,33 +256,35 @@ class RelativeBubbleSlideChild extends BubbleSlideChild {
     switch (direction) {
       case AxisDirection.up:
         return Position(
-          right:
-              parentSize.width - highlightPosition.right - (extraWidthRight ?? extraWidth ?? 0.0),
-          bottom: parentSize.height - highlightPosition.top,
-          left: highlightPosition.left - (extraWidthLeft ?? extraWidth ?? 0.0),
+          right: parentSize.width -
+              highlightPosition.right! -
+              (extraWidthRight ?? extraWidth ?? 0.0),
+          bottom: parentSize.height - highlightPosition.top!,
+          left: highlightPosition.left! - (extraWidthLeft ?? extraWidth ?? 0.0),
         );
       case AxisDirection.right:
         return Position(
-          top: highlightPosition.top - (extraHeightTop ?? extraHeight ?? 0.0),
+          top: highlightPosition.top! - (extraHeightTop ?? extraHeight ?? 0.0),
           bottom: parentSize.height -
-              highlightPosition.bottom -
+              highlightPosition.bottom! -
               (extraHeightBottom ?? extraHeight ?? 0.0),
           left: highlightPosition.right,
         );
       case AxisDirection.left:
         return Position(
-          top: highlightPosition.top - (extraHeightTop ?? extraHeight ?? 0.0),
+          top: highlightPosition.top! - (extraHeightTop ?? extraHeight ?? 0.0),
           bottom: parentSize.height -
-              highlightPosition.bottom -
+              highlightPosition.bottom! -
               (extraHeightBottom ?? extraHeight ?? 0.0),
-          right: parentSize.width - highlightPosition.left,
+          right: parentSize.width - highlightPosition.left!,
         );
       default:
         return Position(
           top: highlightPosition.bottom,
-          right:
-              parentSize.width - highlightPosition.right - (extraWidthRight ?? extraWidth ?? 0.0),
-          left: highlightPosition.left - (extraWidthLeft ?? extraWidth ?? 0.0),
+          right: parentSize.width -
+              highlightPosition.right! -
+              (extraWidthRight ?? extraWidth ?? 0.0),
+          left: highlightPosition.left! - (extraWidthLeft ?? extraWidth ?? 0.0),
         );
     }
   }
@@ -292,8 +297,8 @@ class AbsoluteBubbleSlideChild extends BubbleSlideChild {
 
   /// Creates a new absolute bubble slide child instance.
   const AbsoluteBubbleSlideChild({
-    Widget widget,
-    @required this.positionCalculator,
+    Widget? widget,
+    required this.positionCalculator,
   }) : super(
           widget: widget,
         );
